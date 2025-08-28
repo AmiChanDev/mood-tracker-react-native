@@ -9,7 +9,7 @@ import {
   ToastAndroid,
   Image,
 } from "react-native";
-import { Mood } from "../types/mood";
+import { Mood } from "../types/Mood";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -32,6 +32,8 @@ export const HomeScreen = () => {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
+  const STORAGE_KEY = "@moodList:key"
+
   const moodList: string[] = ["😊", "😐", "😢"];
 
   const saveMood = async () => {
@@ -53,11 +55,11 @@ export const HomeScreen = () => {
     };
 
     try {
-      const existingData = await AsyncStorage.getItem("moods");
+      const existingData = await AsyncStorage.getItem(STORAGE_KEY);
       const parsedData: (Mood & { image?: string })[] = existingData ? JSON.parse(existingData) : [];
       parsedData.push(moodEntry);
 
-      await AsyncStorage.setItem("moods", JSON.stringify(parsedData));
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(parsedData));
 
       ToastAndroid.showWithGravity(
         "Mood saved successfully!",
