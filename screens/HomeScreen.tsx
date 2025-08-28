@@ -7,12 +7,14 @@ import {
   StyleSheet,
   SafeAreaView,
   ToastAndroid,
+  Image,
 } from "react-native";
 import { Mood } from "../types/mood";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import uuid from 'react-native-uuid';
+import * as ImagePicker from 'expo-image-picker';
 
 type navigatorParamList = {
   Home: undefined,
@@ -27,6 +29,7 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<
 export const HomeScreen = () => {
   const [selectedMood, setSelectedMood] = useState("");
   const [note, setNote] = useState("");
+  const [imageUri, setImageUri] = useState<string | null>(null);
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
   const moodList: string[] = ["😊", "😐", "😢"];
@@ -41,16 +44,17 @@ export const HomeScreen = () => {
       return;
     }
 
-    const moodEntry: Mood = {
-      id: uuid.v4(),
+    const moodEntry: Mood & { image?: string } = {
+      id: uuid.v4().toString(),
       mood: selectedMood,
       note,
       date: new Date().toISOString(),
+      image: imageUri || undefined,
     };
 
     try {
       const existingData = await AsyncStorage.getItem("moods");
-      const parsedData: Mood[] = existingData ? JSON.parse(existingData) : [];
+      const parsedData: (Mood & { image?: string })[] = existingData ? JSON.parse(existingData) : [];
       parsedData.push(moodEntry);
 
       await AsyncStorage.setItem("moods", JSON.stringify(parsedData));
@@ -63,12 +67,33 @@ export const HomeScreen = () => {
 
       setSelectedMood("");
       setNote("");
+      setImageUri(null);
     } catch (error) {
       ToastAndroid.showWithGravity(
         (error as Error).message,
         ToastAndroid.SHORT,
         ToastAndroid.TOP
       );
+    }
+  };
+
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      ToastAndroid.show("Permission denied!", ToastAndroid.SHORT);
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images', 'videos'],
+      quality: 0.7,
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+      ToastAndroid.show("Image selected!", ToastAndroid.SHORT);
     }
   };
 
@@ -97,7 +122,18 @@ export const HomeScreen = () => {
         onChangeText={setNote}
         style={styles.input}
       />
-      
+
+      <Pressable style={styles.imagePickerButton} onPress={pickImage}>
+        <Text style={styles.imagePickerText}>
+          {imageUri ? "Change Image" : "Pick Image"}
+        </Text>
+      </Pressable>
+
+      {imageUri && (
+        <View style={{ alignItems: "center", marginBottom: 20 }}>
+          <Image source={{ uri: imageUri }} style={{ width: 150, height: 150, borderRadius: 10 }} />
+        </View>
+      )}
 
       <Pressable style={styles.saveButton} onPress={saveMood}>
         <Text style={styles.saveText}>Save Mood</Text>
@@ -113,38 +149,16 @@ export const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, justifyContent: "center" },
   title: { fontSize: 24, marginBottom: 20, textAlign: "center" },
-  moodContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: 20,
-  },
-  moodButton: {
-    padding: 15,
-    borderRadius: 50,
-    backgroundColor: "#f5d6d6ff",
-  },
+  moodContainer: { flexDirection: "row", justifyContent: "space-around", marginBottom: 20 },
+  moodButton: { padding: 15, borderRadius: 50, backgroundColor: "#f5d6d6ff" },
   selectedMood: { backgroundColor: "#c6e4e6ff" },
   moodText: { fontSize: 35 },
-  input: {
-    borderWidth: 1,
-    padding: 10,
-    marginBottom: 20,
-    borderRadius: 10,
-  },
-  saveButton: {
-    backgroundColor: "#4caf50",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    marginBottom: 10,
-  },
+  input: { borderWidth: 1, padding: 10, marginBottom: 20, borderRadius: 10 },
+  imagePickerButton: { backgroundColor: "#54d6fdff", paddingVertical: 12, borderRadius: 8, alignItems: "center", marginBottom: 16, flexDirection: "row", justifyContent: "center", },
+  imagePickerText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
+  saveButton: { backgroundColor: "#4caf50", padding: 15, borderRadius: 10, alignItems: "center", marginBottom: 10 },
   saveText: { color: "#fff", fontWeight: "bold" },
-  historyButton: {
-    backgroundColor: "#2196f3",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-  },
+  historyButton: { backgroundColor: "#2196f3", padding: 15, borderRadius: 10, alignItems: "center" },
   historyText: { color: "#fff", fontWeight: "bold" },
 });
 
