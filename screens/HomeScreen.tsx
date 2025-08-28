@@ -8,6 +8,9 @@ import {
   SafeAreaView,
   ToastAndroid,
   Image,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
 } from "react-native";
 import { Mood } from "../types/Mood";
 import { useNavigation } from "@react-navigation/native";
@@ -31,9 +34,7 @@ export const HomeScreen = () => {
   const [note, setNote] = useState("");
   const [imageUri, setImageUri] = useState<string | null>(null);
   const navigation = useNavigation<HomeScreenNavigationProp>();
-
   const STORAGE_KEY = "@moodList:key"
-
   const moodList: string[] = ["😊", "😐", "😢"];
 
   const saveMood = async () => {
@@ -100,51 +101,59 @@ export const HomeScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>How Are You Feeling Today?</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0} // adjust if needed
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <SafeAreaView style={styles.container}>
+          <Text style={styles.title}>How Are You Feeling Today?</Text>
 
-      <View style={styles.moodContainer}>
-        {moodList.map((mood) => (
-          <Pressable
-            key={mood}
-            onPress={() => setSelectedMood(mood)}
-            style={[
-              styles.moodButton,
-              selectedMood === mood ? styles.selectedMood : null,
-            ]}
-          >
-            <Text style={styles.moodText}>{mood}</Text>
+          <View style={styles.moodContainer}>
+            {moodList.map((mood) => (
+              <Pressable
+                key={mood}
+                onPress={() => setSelectedMood(mood)}
+                style={[
+                  styles.moodButton,
+                  selectedMood === mood ? styles.selectedMood : null,
+                ]}
+              >
+                <Text style={styles.moodText}>{mood}</Text>
+              </Pressable>
+            ))}
+          </View>
+
+          <TextInput
+            placeholder="Enter a note (optional)"
+            value={note}
+            onChangeText={setNote}
+            style={styles.input}
+          />
+
+          <Pressable style={styles.imagePickerButton} onPress={pickImage}>
+            <Text style={styles.imagePickerText}>
+              {imageUri ? "Change Image" : "Pick Image"}
+            </Text>
           </Pressable>
-        ))}
-      </View>
 
-      <TextInput
-        placeholder="Enter a note (optional)"
-        value={note}
-        onChangeText={setNote}
-        style={styles.input}
-      />
+          {imageUri && (
+            <View style={{ alignItems: "center", marginBottom: 20 }}>
+              <Image source={{ uri: imageUri }} style={{ width: 150, height: 150, borderRadius: 10 }} />
+            </View>
+          )}
 
-      <Pressable style={styles.imagePickerButton} onPress={pickImage}>
-        <Text style={styles.imagePickerText}>
-          {imageUri ? "Change Image" : "Pick Image"}
-        </Text>
-      </Pressable>
+          <Pressable style={styles.saveButton} onPress={saveMood}>
+            <Text style={styles.saveText}>Save Mood</Text>
+          </Pressable>
 
-      {imageUri && (
-        <View style={{ alignItems: "center", marginBottom: 20 }}>
-          <Image source={{ uri: imageUri }} style={{ width: 150, height: 150, borderRadius: 10 }} />
-        </View>
-      )}
-
-      <Pressable style={styles.saveButton} onPress={saveMood}>
-        <Text style={styles.saveText}>Save Mood</Text>
-      </Pressable>
-
-      <Pressable onPress={() => navigation.navigate('History')} style={styles.historyButton}>
-        <Text style={styles.historyText}>View History</Text>
-      </Pressable>
-    </SafeAreaView>
+          <Pressable onPress={() => navigation.navigate('History')} style={styles.historyButton}>
+            <Text style={styles.historyText}>View History</Text>
+          </Pressable>
+        </SafeAreaView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
