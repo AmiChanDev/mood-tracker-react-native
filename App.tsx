@@ -1,20 +1,25 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator, NativeStackNavigationOptions } from "@react-navigation/native-stack";
+
+import HomeScreen from "./screens/HomeScreen";
+import HistoryScreen from "./screens/HistoryScreen";
+
+type navigatorParamList = {
+  Home: undefined,
+  History: undefined
+}
+const Stack = createNativeStackNavigator<navigatorParamList>();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={HomeScreen} options={HomeStyles} />
+        <Stack.Screen name="History" component={HistoryScreen} options={HistoryStyles} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const HomeStyles: NativeStackNavigationOptions = { title: "My Mood Tracker", headerTitleAlign: 'center', headerTintColor: 'blue', };
+const HistoryStyles: NativeStackNavigationOptions = { title: "History", headerTitleAlign: 'center', headerTintColor: 'red', headerBackButtonDisplayMode: "minimal" }
