@@ -20,6 +20,7 @@ const HistoryScreen = () => {
   const clearHistory = async () => {
     await AsyncStorage.removeItem(STORAGE_KEY);
     setMoods([]);
+    ToastAndroid.show("Records Cleared!", ToastAndroid.SHORT);
   };
 
   const removeMood = async (id: string) => {
@@ -32,7 +33,7 @@ const HistoryScreen = () => {
           const filtered = moods.filter(m => m.id !== id);
           setMoods(filtered);
           await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-          ToastAndroid.show("Record Deleted Successfully!", ToastAndroid.SHORT)
+          ToastAndroid.show("Record Deleted Successfully!", ToastAndroid.SHORT);
         },
       },
     ]);
