@@ -51,6 +51,7 @@ const HomeScreen = () => {
       image: imageUri || undefined,
     };
 
+    console.log(moodEntry.date);
     try {
       const existingData = await AsyncStorage.getItem(STORAGE_KEY);
       const parsedData: (Mood & { image?: string })[] = existingData
@@ -79,7 +80,7 @@ const HomeScreen = () => {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images','videos'],
+      mediaTypes: ['images', 'videos'],
       quality: 1,
       allowsEditing: true,
       aspect: [4, 3],

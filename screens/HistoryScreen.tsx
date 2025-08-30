@@ -56,7 +56,7 @@ const HistoryScreen = () => {
           <View style={styles.entry}>
             <View style={styles.entryHeader}>
               <Text style={styles.date}>
-                {new Date(item.date).toLocaleDateString()}
+                {new Date(item.date).toLocaleString()}
               </Text>
               <Pressable
                 style={styles.deleteButton}
