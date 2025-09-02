@@ -85,8 +85,8 @@ const HistoryScreen = () => {
         renderItem={({ item }) => (
           <View style={styles.entry}>
             <View style={styles.entryHeader}>
-              <Text style={styles.date}>
-                {(item.date)}
+              <Text style={styles.dateString}>
+                {(item.dateString)}
               </Text>
               <Pressable
                 style={styles.deleteButton}
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 8,
   },
-  date: {
+  dateString: {
     fontSize: 14,
     color: "#6B7280",
     fontWeight: "500",

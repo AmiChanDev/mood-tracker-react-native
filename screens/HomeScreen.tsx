@@ -74,7 +74,7 @@ const HomeScreen = () => {
       id: String(uniqueNumericId),
       mood: moodToString(selectedMood),
       note,
-      date: formattedDate,
+      dateString: formattedDate,
       image: imageUri || undefined,
     };
 

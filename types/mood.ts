@@ -2,6 +2,6 @@ export type Mood = {
   id: string;
   mood: string;
   note: string;
-  date: string;
+  dateString: string;
   image?: string | null;
 };
