@@ -43,6 +43,14 @@ const HistoryScreen = () => {
     loadMoods();
   }, []);
 
+  const moodToEmoji = (selectedMood: string): string => {
+    if (selectedMood === "happy") return "😊";
+    if (selectedMood === "neutral") return "😐";
+    if (selectedMood === "sad") return "😢";
+    return "undefined";
+  };
+
+
   return (
     <View style={styles.container}>
       <Pressable style={styles.reportButton}>
@@ -65,7 +73,7 @@ const HistoryScreen = () => {
                 <Text style={styles.deleteText}>🗑️</Text>
               </Pressable>
             </View>
-            <Text style={styles.mood}>{item.mood}</Text>
+            <Text style={styles.mood}>{moodToEmoji(item.mood)}</Text>
             {item.note ? <Text style={styles.note}>{item.note}</Text> : null}
             {item.image && (
               <Image

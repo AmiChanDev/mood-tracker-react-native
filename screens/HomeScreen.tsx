@@ -78,6 +78,7 @@ const HomeScreen = () => {
       image: imageUri || undefined,
     };
 
+
     try {
       const existingData = await AsyncStorage.getItem(STORAGE_KEY);
       const parsedData: (Mood & { image?: string })[] =
@@ -93,11 +94,11 @@ const HomeScreen = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(moodEntry),
+        body: JSON.stringify(parsedData),
       });
 
       const resJson = await response.json();
-      if (resJson.status) {
+      if (resJson.ok) {
         ToastAndroid.show("Mood saved successfully!", ToastAndroid.SHORT);
       } else {
         ToastAndroid.show("Failed to save the record!", ToastAndroid.SHORT);
