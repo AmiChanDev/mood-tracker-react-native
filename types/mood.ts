@@ -3,5 +3,5 @@ export type Mood = {
   mood: string;
   note: string;
   date: string;
-  image?: string;
+  image?: string | null;
 };

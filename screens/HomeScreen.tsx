@@ -16,7 +16,6 @@ import { Mood } from "../types/Mood";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import uuid from "react-native-uuid";
 import * as ImagePicker from "expo-image-picker";
 
 type NavigatorParamList = {
@@ -69,9 +68,10 @@ const HomeScreen = () => {
       ":" +
       pad(now.getSeconds());
 
+    const uniqueNumericId = Date.now() + Math.floor(Math.random() * 1000);
 
     const moodEntry: Mood & { image?: string } = {
-      id: String(uuid.v4()),
+      id: String(uniqueNumericId),
       mood: moodToString(selectedMood),
       note,
       date: formattedDate,

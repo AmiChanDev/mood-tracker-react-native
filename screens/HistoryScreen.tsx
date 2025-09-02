@@ -14,14 +14,36 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Mood } from "../types/Mood";
 
 const STORAGE_KEY = "@moodList:key";
+const PUBLIC_URL = "https://a7393b4d069f.ngrok-free.app";
 
 const HistoryScreen = () => {
   const [moods, setMoods] = useState<Mood[]>([]);
 
   const loadMoods = async () => {
-    const stored = await AsyncStorage.getItem(STORAGE_KEY);
-    if (stored) setMoods(JSON.parse(stored));
+    try {
+      // 1. Fetch moods from backend
+      const response = await fetch(PUBLIC_URL + "/MoodTrackerBackend/GetMoods");
+      const backendMoods: Mood[] = await response.json();
+
+      // 2. Get images from AsyncStorage
+      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      const localMoods: (Mood & { image?: string })[] = stored
+        ? JSON.parse(stored)
+        : [];
+
+      // 3. Merge backend moods with local images (by id)
+      const mergedMoods = backendMoods.map((m) => {
+        const local = localMoods.find((lm) => lm.id === m.id);
+        return { ...m, image: local?.image || null };
+      });
+
+      setMoods(mergedMoods);
+    } catch (error) {
+      console.log("Failed to load moods:", error);
+      ToastAndroid.show("Failed to load moods", ToastAndroid.SHORT);
+    }
   };
+
 
   const removeMood = async (id: string) => {
     Alert.alert("Delete Mood", "Are you sure you want to delete this mood?", [
