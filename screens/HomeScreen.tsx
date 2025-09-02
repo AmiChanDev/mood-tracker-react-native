@@ -37,7 +37,7 @@ const HomeScreen = () => {
   const STORAGE_KEY = "@moodList:key";
   const moodList = ["😊", "😐", "😢"];
 
-  const PUBLIC_URL = "https://2b064a527674.ngrok-free.app";
+  const PUBLIC_URL = "https://a7393b4d069f.ngrok-free.app";
 
   const saveMood = async () => {
     if (!selectedMood) {
@@ -78,7 +78,6 @@ const HomeScreen = () => {
       image: imageUri || undefined,
     };
 
-
     try {
       const existingData = await AsyncStorage.getItem(STORAGE_KEY);
       const parsedData: (Mood & { image?: string })[] =
@@ -94,11 +93,11 @@ const HomeScreen = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(parsedData),
+        body: JSON.stringify(moodEntry),
       });
 
       const resJson = await response.json();
-      if (resJson.ok) {
+      if (resJson.status) {
         ToastAndroid.show("Mood saved successfully!", ToastAndroid.SHORT);
       } else {
         ToastAndroid.show("Failed to save the record!", ToastAndroid.SHORT);
@@ -108,6 +107,7 @@ const HomeScreen = () => {
       setNote("");
       setImageUri(null);
     } catch (error) {
+      console.log((error as Error).message)
       ToastAndroid.show((error as Error).message, ToastAndroid.SHORT);
     }
   };
