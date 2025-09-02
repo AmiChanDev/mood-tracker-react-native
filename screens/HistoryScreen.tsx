@@ -33,9 +33,13 @@ const HistoryScreen = () => {
 
       // 3. Merge backend moods with local images (by id)
       const mergedMoods = backendMoods.map((m) => {
-        const local = localMoods.find((lm) => lm.id === m.id);
-        return { ...m, image: local?.image || null };
+        const local = localMoods.find((lm) => String(lm.id) === String(m.id));
+        return {
+          ...m,
+          image: m.image || local?.image || null,
+        };
       });
+
 
       setMoods(mergedMoods);
     } catch (error) {
@@ -52,6 +56,9 @@ const HistoryScreen = () => {
         text: "Delete",
         style: "destructive",
         onPress: async () => {
+          await fetch(`${PUBLIC_URL}/MoodTrackerBackend/DeleteMood?id=${id}`, {
+            method: "DELETE",
+          });
           const filtered = moods.filter((m) => m.id !== id);
           setMoods(filtered);
           await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
@@ -71,7 +78,6 @@ const HistoryScreen = () => {
     if (selectedMood === "sad") return "😢";
     return "undefined";
   };
-
 
   return (
     <View style={styles.container}>
