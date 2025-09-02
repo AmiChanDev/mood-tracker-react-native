@@ -37,31 +37,52 @@ const HomeScreen = () => {
   const STORAGE_KEY = "@moodList:key";
   const moodList = ["😊", "😐", "😢"];
 
+  const PUBLIC_URL = "http://localhost:3306";
+
   const saveMood = async () => {
     if (!selectedMood) {
       ToastAndroid.show("Please select a mood", ToastAndroid.SHORT);
       return;
     }
 
+    const moodToString = (selectedMood: string): string => {
+      if (selectedMood === "😊") return "happy";
+      if (selectedMood === "😐") return "neutral";
+      if (selectedMood === "😢") return "sad";
+      return "undefined";
+    };
+
     const moodEntry: Mood & { image?: string } = {
       id: String(uuid.v4()),
-      mood: selectedMood,
+      mood: moodToString(selectedMood),
       note,
       date: new Date().toISOString(),
       image: imageUri || undefined,
     };
 
-    console.log(moodEntry.date);
     try {
       const existingData = await AsyncStorage.getItem(STORAGE_KEY);
-      const parsedData: (Mood & { image?: string })[] = existingData
-        ? JSON.parse(existingData)
-        : [];
+      const parsedData: (Mood & { image?: string })[] =
+        existingData ? JSON.parse(existingData) : [];
       parsedData.push(moodEntry);
 
+      // Save to AsyncStorage
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(parsedData));
 
-      ToastAndroid.show("Mood saved successfully!", ToastAndroid.SHORT);
+      // Save to backend
+      const response = await fetch(PUBLIC_URL + "/MoodTrackerBackend/SaveMood", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(parsedData),
+      });
+
+      if (response.ok) {
+        ToastAndroid.show("Mood saved successfully!", ToastAndroid.SHORT);
+      } else {
+        ToastAndroid.show("Failed to save the record!", ToastAndroid.SHORT);
+      }
 
       setSelectedMood("");
       setNote("");
@@ -80,7 +101,7 @@ const HomeScreen = () => {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images', 'videos'],
+      mediaTypes: ["images", "videos"],
       quality: 1,
       allowsEditing: true,
       aspect: [4, 3],
