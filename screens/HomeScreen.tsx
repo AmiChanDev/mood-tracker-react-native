@@ -37,7 +37,7 @@ const HomeScreen = () => {
   const STORAGE_KEY = "@moodList:key";
   const moodList = ["😊", "😐", "😢"];
 
-  const PUBLIC_URL = "http://localhost:3306";
+  const PUBLIC_URL = "https://2b064a527674.ngrok-free.app";
 
   const saveMood = async () => {
     if (!selectedMood) {
@@ -52,11 +52,29 @@ const HomeScreen = () => {
       return "undefined";
     };
 
+    const now = new Date();
+
+    const pad = (n: number) => (n < 10 ? "0" + n : n);
+
+    const formattedDate =
+      now.getFullYear() +
+      "-" +
+      pad(now.getMonth() + 1) +
+      "-" +
+      pad(now.getDate()) +
+      " " +
+      pad(now.getHours()) +
+      ":" +
+      pad(now.getMinutes()) +
+      ":" +
+      pad(now.getSeconds());
+
+
     const moodEntry: Mood & { image?: string } = {
       id: String(uuid.v4()),
       mood: moodToString(selectedMood),
       note,
-      date: new Date().toISOString(),
+      date: formattedDate,
       image: imageUri || undefined,
     };
 
@@ -75,10 +93,11 @@ const HomeScreen = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(parsedData),
+        body: JSON.stringify(moodEntry),
       });
 
-      if (response.ok) {
+      const resJson = await response.json();
+      if (resJson.status) {
         ToastAndroid.show("Mood saved successfully!", ToastAndroid.SHORT);
       } else {
         ToastAndroid.show("Failed to save the record!", ToastAndroid.SHORT);
